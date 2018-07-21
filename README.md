@@ -173,7 +173,7 @@ Result:
 Result:
 
     Payment received.
-    Send Receipt!
+    Send Receipt! Payed: 99.99€
     Notify Shipping!
 
-``Send Receipt!`` gets echoed first since the corresponding ``EventSubscriber``'s ``Subscription::priority()`` is higher.
+``Send Receipt! Payed: 99.99€`` gets echoed first since the corresponding ``EventSubscriber``'s ``Subscription::priority()`` is higher.
