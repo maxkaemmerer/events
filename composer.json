@@ -1,0 +1,32 @@
+{
+    "name": "maxkaemmerer/events",
+    "version": "v1.0.0",
+    "description": "Provides Interfaces and Implementations for Event, EventSubscriber communication",
+    "keywords": ["library", "composer", "package", "php", "event", "events", "subscribe"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Max Kaemmerer",
+            "email": "maxkaemmerer.hb@googlemail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7",
+        "php-coveralls/php-coveralls": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MaxKaemmerer\\Events\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MaxKaemmerer\\Events\\Tests\\": "tests"
+        }
+    }
+}
