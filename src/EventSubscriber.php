@@ -11,7 +11,7 @@ interface EventSubscriber
     /**
      * @param Event $event
      */
-    public function on(Event $event): void;
+    public function __invoke(Event $event): void;
 
     /**
      * @return EventSubscription

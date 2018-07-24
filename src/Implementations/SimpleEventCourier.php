@@ -60,7 +60,7 @@ final class SimpleEventCourier implements EventCourier
         foreach ($priorities as $priority) {
             /** @var EventSubscriber $subscriber */
             foreach ($priority as $subscriber) {
-                $subscriber->on($event);
+                $subscriber($event);
             }
         }
     }

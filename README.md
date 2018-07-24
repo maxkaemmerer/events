@@ -36,7 +36,7 @@ Subscribe an ``EventSubscriber`` to the ``EventCourier``. The ``EventSubscriber`
 
 Best practice would be using the fully qualified class name of the event. ``MyEvent::class``
 
-The ``EventSubscriber::on($event)`` method is where your actual domain logic happens.
+The ``EventSubscriber::__invoke($event)`` method is where your actual domain logic happens.
 
 Feel free to inject services, a container, or whatever else you need, into your ``EventSubscriber``s.
 
@@ -50,7 +50,7 @@ Feel free to inject services, a container, or whatever else you need, into your 
         /**
          * @param Event $event
          */
-        public function on(Event $event): void
+        public function __invoke(Event $event): void
         {
             echo 'Notify Shipping!'  . PHP_EOL;
         }
@@ -65,7 +65,7 @@ Feel free to inject services, a container, or whatever else you need, into your 
     });
     
 #### Dispatch an Event:
-Dispatching an ``Event`` causes the ``EventCourier`` to notify all ``EventSubscriber``s, who's ``Subscription::event()`` method matches the ``Event``'s name, specified by ``Event:name()``, and calls their ``EventSubscriber::on($event)`` method in order of priority.
+Dispatching an ``Event`` causes the ``EventCourier`` to notify all ``EventSubscriber``s, who's ``Subscription::event()`` method matches the ``Event``'s name, specified by ``Event:name()``, and calls their ``EventSubscriber::__invoke($event)`` method in order of priority.
 
 IMPORTANT: ``EventSubscriber``'s and the ``EventCourier`` never return anything.
 
@@ -119,7 +119,7 @@ Result:
         /**
          * @param Event $event
          */
-        public function on(Event $event): void
+        public function __invoke(Event $event): void
         {
             echo 'Notify Shipping!' . PHP_EOL;
         }
@@ -139,7 +139,7 @@ Result:
         /**
          * @param Event $event
          */
-        public function on(Event $event): void
+        public function __invoke(Event $event): void
         {
             echo 'Send Receipt! Payed: ' . $event->payload()->get('price') . PHP_EOL;
         }
@@ -177,3 +177,61 @@ Result:
     Notify Shipping!
 
 ``Send Receipt! Payed: 99.99€`` gets echoed first since the corresponding ``EventSubscriber``'s ``Subscription::priority()`` is higher.
+
+### Example of fully implemented classes
+
+    class OnPaymentReceived implements EventSubscriber
+    {
+        /**
+         * @param Event $event
+         * @throws \MaxKaemmerer\Events\Exception\PayloadItemNotFound
+         */
+        public function __invoke(Event $event): void
+        {
+            // You could dispatch a command from here that handles the sending of receipts.
+            echo 'Send Receipt! Payed: ' . $event->payload()->get('price') . PHP_EOL;
+        }
+    
+        /**
+         * @return EventSubscription
+         */
+        public function subscription(): EventSubscription
+        {
+            return Subscription::fromEventNameAndPriority(PaymentReceived::class, 60);
+        }
+    }
+
+    class PaymentReceived implements Event
+    {
+        /**
+         * @var EventPayload
+         */
+        private $payload;
+    
+        private function __construct()
+        {
+        }
+    
+        /**
+         * @param string $price
+         * @param string $method
+         * @param int $timestamp
+         * @return PaymentReceived
+         */
+        public static function fromPaymentDetails(string $price, string $method, int $timestamp): \PaymentReceived
+        {
+            $instance = new self();
+            $instance->payload = Payload::fromArray(['price' => $price, 'method' => $method, 'timestamp' => $timestamp]);
+            return $instance;
+        }
+    
+        public function payload(): EventPayload
+        {
+            return $this->payload;
+        }
+    
+        public function name(): string
+        {
+            return self::class;
+        }
+    }

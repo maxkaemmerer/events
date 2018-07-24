@@ -153,12 +153,12 @@ class SimpleEventCourierTest extends TestCase
     {
         $this->event = $this->prophesize(Event::class);
         $this->event->name()->willReturn(self::EVENT_NAME_A);
-        $this->eventSubscriber->on($this->event->reveal())->shouldBeCalled();
+        $this->eventSubscriber->__invoke($this->event->reveal())->shouldBeCalled();
     }
 
     private function thenTheNonMatchingEventSubscriberShouldNotBeNotified(): void
     {
-        $this->eventSubscriberTwo->on($this->event->reveal())->shouldNotBeCalled();
+        $this->eventSubscriberTwo->__invoke($this->event->reveal())->shouldNotBeCalled();
     }
 
     private function whenTheEventIsDispatched(): void
@@ -189,23 +189,22 @@ class TestEventSubscriber implements EventSubscriber
         $this->testCase = $testCase;
     }
 
-
-    /**
-     * @param Event $event
-     */
-    public function on(Event $event): void
-    {
-        if (!$this->testCase->firstSubscriberCalled) {
-            $this->testCase->firstSubscriberCalled = $this->subscription->priority();
-        }
-        $this->testCase->lastSubscriberCalled = $this->subscription->priority();
-    }
-
     /**
      * @return EventSubscription
      */
     public function subscription(): EventSubscription
     {
         return $this->subscription;
+    }
+
+    /**
+     * @param Event $event
+     */
+    public function __invoke(Event $event): void
+    {
+        if (!$this->testCase->firstSubscriberCalled) {
+            $this->testCase->firstSubscriberCalled = $this->subscription->priority();
+        }
+        $this->testCase->lastSubscriberCalled = $this->subscription->priority();
     }
 }
